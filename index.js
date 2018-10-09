@@ -50,9 +50,32 @@ router.route('/object')
     }
 })
 
-router.route('/object/:key')
-.get(function(request, resp){
-    //todo
+router.route('/object/:key?')
+.get([
+  // key must exist
+  check('key').exists(),
+  ///ts must be valid, return true or false
+  check('timestamp').custom((ts, {req}) =>{
+    // check for empty string
+    if (!ts || ts.length ===0){
+      // reject empty string, since it isnt valid
+      return false;
+    }
+    // check if timestamp is valid
+    return moment.unix(ts).isValid()
+  }).optional(),
+], function(request, resp){
+    //everything seems to be valid
+    const errors = validationResult(request);
+    if (!errors.isEmpty()) {
+      return resp.status(422).json({ errors: errors.array() });
+    }
+
+    Entity.findOne({key: request.params.key}).then(function(error, result){
+      console.log(error);
+      console.log(result);
+    })
+
 })
 
 function validateRequestBody(body) {
