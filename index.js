@@ -1,19 +1,19 @@
 const express = require('express');
-var request = require('request');
-var bodyParser = require('body-parser');
-var { MONGO_URL } = require('./constants').database;
-var { check, validationResult } = require('express-validator/check');
-var Entity = require('./models/Entity');
+const request = require('request');
+const bodyParser = require('body-parser');
+const { check, validationResult } = require('express-validator/check');
 const moment = require('moment');
-var app = express();
+const app = express();
 const router = express.Router();
+
 // Set up mongoose connection
-var mongoose = require('mongoose');
-var mongoDB = process.env.MONGODB_URI || MONGO_URL;
+const mongoose = require('mongoose');
+const { MONGO_URL } = require('./constants').database;
+const mongoDB = process.env.MONGODB_URI || MONGO_URL;
+const Entity = require('./models/Entity');
 mongoose.connect(mongoDB);
 mongoose.Promise = global.Promise;
-var db = mongoose.connection;
-
+const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 app.use(bodyParser.json());
@@ -65,17 +65,40 @@ router.route('/object/:key?')
     return moment.unix(ts).isValid()
   }).optional(),
 ], function(request, resp){
+
     //everything seems to be valid
     const errors = validationResult(request);
     if (!errors.isEmpty()) {
       return resp.status(422).json({ errors: errors.array() });
     }
 
-    Entity.findOne({key: request.params.key}).then(function(error, result){
-      console.log(error);
-      console.log(result);
-    })
+    //build our query
+    const query = {
+    $and: [{key: request.params.key}],
+    };
+    // if timestamp is available, lets query less than or equal to timestamp.
+    // ie. if timestamp given is 6.04, it will find the record 6.04 or earlier.
+    //
+    if (request.query.timestamp){
+      query.$and.push({ timestamp :{ $lte: request.query.timestamp }});
+    }
 
+    Entity.findOne(query).then(function(result, error){
+      //undefined if no errors found
+      if (error){
+        resp.status(500).send(error);
+        return;
+      }
+      // null if no results found
+      if (result){
+        // found something!
+        resp.status(200).send(result);
+      } else {
+        // result is undefined
+        // so no results found
+        resp.status(204).send('No Results Found');
+      }
+    })
 })
 
 function validateRequestBody(body) {
