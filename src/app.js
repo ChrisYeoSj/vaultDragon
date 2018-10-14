@@ -64,7 +64,7 @@ router.route('/object/:key?')
 
     try {
         const entity = await EntityService.findEntity(request.params.key, request.query.timestamp);
-        if (entity){
+        if (entity && entity.length > 0){
           response.status(200).send(entity);
         } else {
           response.status(204).send(entity);

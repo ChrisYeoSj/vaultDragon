@@ -1,4 +1,4 @@
-const EntityService = require('../src/services');
+const EntityService = require('../src/services/entityService');
 const sinon = require('sinon');
 
 describe('EntityService Testing', ()=>{
@@ -39,20 +39,21 @@ describe('EntityService Testing', ()=>{
 
     it('is able to find Entity', ()=>{
 
+        const find = sinon.spy();
         let key = null;
 
         const mockedEntityModal = function(data){
           key = data.key;
           return {
             ...data,
-            findOne: sinon.spy(),
+            find
           }
         }
 
         const entityService = EntityService(mockedEntityModal);
         entityService.findEntity('123');
         // check to see if entity.findOne() in findEntity Service is called;
-        const returnedValue = mockedEntityModal.findOne.calledOnce;
+        const returnedValue = mockedEntityModal.find.calledOnce;
         // we expect that .save() has been called once.
         const expectedValue = true;
         // also check keys and values

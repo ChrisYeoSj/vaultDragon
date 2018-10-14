@@ -6,6 +6,9 @@
   "scripts": {
     "start": "node server.js",
     "test": "jest",
+    "test:model": "jest --testPathPattern Model.test",
+    "test:service": "jest --testPathPattern Service.test",
+    "test:app": "jest --testPathPattern app.test",
     "watch": "jest --watch index.js"
   },
   "author": "Christopher Yeo",

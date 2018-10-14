@@ -1,8 +1,8 @@
 const app = require('../src/app');
 const request = require('supertest');
+const moment = require('moment');
 const mongoose = require('mongoose');
-const { MONGO_URL } = require('./constants').testDatabase;
-const bodyParser = require('body-parser');
+const { MONGO_URL } = require('../constants').testDatabase;
 const mongoDB = MONGO_URL;
 mongoose.connect(mongoDB);
 
@@ -15,7 +15,7 @@ describe("app.js tests", () => {
       expect(app).toBeDefined();
     })
 
-    beforeAll(()=>{
+    beforeAll( async ()=>{
       //init the server
       server = app.listen(3005);
       await Entity.remove({});
@@ -52,8 +52,8 @@ describe("app.js tests", () => {
       it('can GET /Object with valid key', async ()=> {
         const entity = new Entity(
             {
-                '123',
-                '456',
+              key: '123',
+              value: '456',
             }
         );
         await entity.save();
@@ -68,11 +68,12 @@ describe("app.js tests", () => {
       })
 
       it('can GET /Object with valid timestamp', async ()=>{
-          const timestamp = moment.unix();
+          const timestamp = '1539541614';
           const entity = new Entity(
               {
-                  '123',
-                  '456',
+                key: '123',
+                value: '456',
+                timestamp: '2018-10-14T18:26:54+00:00',
               }
           );
           await entity.save();
@@ -80,11 +81,11 @@ describe("app.js tests", () => {
       })
 
       it('cannot GET /Object with valid but OLDER timestamp', async ()=>{
-          const timestamp = moment.unix() - 150;
+          const timestamp = '1539541614';
           const entity = new Entity(
               {
-                  '123',
-                  '456',
+                key: '123',
+                value: '456',
               }
           );
           await entity.save();
@@ -96,18 +97,18 @@ describe("app.js tests", () => {
 
           const entity = new Entity(
               {
-                  '123',
-                  '456',
-                  '2018-10-13T18:00:00+00:00',
+                  key: '123',
+                  value: '456',
+                  timestamp: '2018-10-13T18:00:00+00:00',
               }
           );
           await entity.save();
 
           const entity2 = new Entity(
               {
-                  '123',
-                  '654',
-                  '2018-10-13T18:05:00+00:00',
+                  key: '123',
+                  value: '654',
+                  timestamp: '2018-10-13T18:05:00+00:00',
               }
           );
           await entity2.save();
@@ -126,6 +127,12 @@ describe("app.js tests", () => {
           await request(server).get(`/object/`).expect(422);
       })
 
+    })
+
+    describe('404 Tests', ()=>{
+      it('should return 404', async ()=>{
+        await request(server).get('/dogs').expect(404);
+      })
     })
 
 })

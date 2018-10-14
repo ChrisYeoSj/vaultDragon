@@ -34,6 +34,8 @@ const findEntity = Entity => (key, timestamp) => {
       const ts = moment.unix(timestamp).utc();
       query.$and.push({ timestamp :{ $lte: ts }});
     }
+    // sort descending by timestamp and limit of 1 results
+    // (which is the latest result according to timestamp)
     return Entity.find(query).sort({timestamp: -1}).limit(1);
 }
 
