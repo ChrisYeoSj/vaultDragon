@@ -1,5 +1,6 @@
 const app = require('../src/app');
 const request = require('supertest');
+const assert = require('assert');
 const moment = require('moment');
 const mongoose = require('mongoose');
 const { MONGO_URL } = require('../constants').testDatabase;
@@ -57,9 +58,8 @@ describe("app.js tests", () => {
             }
         );
         await entity.save();
-        await request(server).get("/object/123").done((error, response)=>{
-              expect(response.body.value).toEqual('456');
-              done();
+        await request(server).get('/object/123').expect(200).then(response=>{
+          assert(response.body[0].value, '456')
         });
       })
 
@@ -113,9 +113,8 @@ describe("app.js tests", () => {
           );
           await entity2.save();
           // should have key of 456
-          await request(server).get(`/object/123?timestamp=1539453779`).done((error, response)=>{
-            expect(response.body.value).toEqual('456');
-            done();
+          await request(server).get(`/object/123?timestamp=1539453779`).then((response)=>{
+            assert(response.body[0].value, '456')
           });
       })
 

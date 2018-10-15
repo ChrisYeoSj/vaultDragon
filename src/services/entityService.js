@@ -1,7 +1,6 @@
 const moment = require('moment');
 
 const createEntity = Entity => (key, value) => {
-
     if (!key || !value){
       throw new Error(`Missing Variables: Key: ${key}, Value: ${key}`)
     }
@@ -17,6 +16,7 @@ const createEntity = Entity => (key, value) => {
 }
 
 const findEntity = Entity => (key, timestamp) => {
+
     if (!key){
       throw new Error(`Missing Key: ${key}`);
     }

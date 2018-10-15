@@ -37,27 +37,4 @@ describe('EntityService Testing', ()=>{
         expect(value).toEqual('456');
     })
 
-    it('is able to find Entity', ()=>{
-
-        const find = sinon.spy();
-        let key = null;
-
-        const mockedEntityModal = function(data){
-          key = data.key;
-          return {
-            ...data,
-            find
-          }
-        }
-
-        const entityService = EntityService(mockedEntityModal);
-        entityService.findEntity('123');
-        // check to see if entity.findOne() in findEntity Service is called;
-        const returnedValue = mockedEntityModal.find.calledOnce;
-        // we expect that .save() has been called once.
-        const expectedValue = true;
-        // also check keys and values
-        expect(returnedValue).toEqual(expectedValue);
-        expect(key).toEqual('123');
-    })
 })
